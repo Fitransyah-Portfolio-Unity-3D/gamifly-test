@@ -24,6 +24,8 @@ public class TutorialManager : MonoBehaviour
     {
         currentTutorial = Tutorial.LoadingScreen;
 
+        cameraState = GetComponent<Animator>();
+
         batter.gameObject.SetActive(false);
         pitcher.gameObject.SetActive(false);
     }
@@ -41,6 +43,9 @@ public class TutorialManager : MonoBehaviour
 
             batter.gameObject.SetActive(true);
             if (pitcher.gameObject.activeSelf == true) pitcher.gameObject.SetActive(false);
+            batter.EnableInputAction();
+            cameraState.Play("TutorialOne");
+            
         }
         else if (currentTutorial == Tutorial.TutorialTwo)
         {
@@ -52,7 +57,11 @@ public class TutorialManager : MonoBehaviour
             // if no hit twxt Try again ...
             // every hit ball UI change color
 
+
             pitcher.gameObject.SetActive(true);
+            pitcher.DisableInputAction();
+            cameraState.Play("TutorialTwo");
+
         }
         else if (currentTutorial == Tutorial.TutorialThree)
         {
@@ -63,7 +72,9 @@ public class TutorialManager : MonoBehaviour
             // tutorial text Great ...
             // tutorial text dragthe marker here...
 
+            cameraState.Play("TutorialThree");
             batter.gameObject.SetActive(false);
+            
         }
         else if (currentTutorial == Tutorial.TutorialFour)
         {
