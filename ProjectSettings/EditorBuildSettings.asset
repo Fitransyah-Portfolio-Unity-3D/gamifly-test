@@ -8,4 +8,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CrossHair.unity
     guid: 110d55fdafa71f74aae8006c6cf15988
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: e9a616165a749fa458971f571efe347f, type: 2}

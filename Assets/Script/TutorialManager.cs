@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,6 +21,22 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private Tutorial currentTutorial;
     [SerializeField] private Animator cameraState;
 
+    [SerializeField] float throwingTime = 10f;
+
+    [SerializeField] int tutorialOneCount;
+    [SerializeField] int tutorialTwoCount;
+
+    bool isTutorialTwoOn;
+
+    public event Action OnTutorialStart;
+    public event Action OnLoadingScreenComplete;
+    public event Action OnTutorialOneComplete;
+    public event Action OnTutorialTwoProgress;
+    public event Action OnTutorialTwoComplete;
+    public event Action OnTutorialThreeComplete;
+    public event Action OnTutorialFourComplete;
+    public event Action OnTutorialFiveComplete;
+    public event Action OnTutorialEndComplete;
     private void Start()
     {
         currentTutorial = Tutorial.LoadingScreen;
@@ -28,6 +45,14 @@ public class TutorialManager : MonoBehaviour
 
         batter.gameObject.SetActive(false);
         pitcher.gameObject.SetActive(false);
+
+        tutorialOneCount = 0;
+        tutorialTwoCount = 0;
+
+        batter.OnTutorialOneCount += IncrementTutorialOneCount;
+        pitcher.OnTutorialTwoCount += IncrementTutorialTwoCount;
+
+        StartCoroutine(LoadingScreenRoutine());
     }
     private void Update()
     {
@@ -40,12 +65,24 @@ public class TutorialManager : MonoBehaviour
             // effect on hit button is active
             // tutorial text one welcome...
             // tutorial text two taps the ...
-
+            
+            
+            
             batter.gameObject.SetActive(true);
             if (pitcher.gameObject.activeSelf == true) pitcher.gameObject.SetActive(false);
             batter.EnableInputAction();
             cameraState.Play("TutorialOne");
-            
+
+            if (tutorialOneCount >= 3 && !batter.IsBatterHitting())
+            {
+                SetTutorial(Tutorial.TutorialTwo);
+                isTutorialTwoOn = true;
+
+                if (OnTutorialOneComplete != null)
+                {
+                    OnTutorialOneComplete();
+                }
+            }           
         }
         else if (currentTutorial == Tutorial.TutorialTwo)
         {
@@ -56,12 +93,27 @@ public class TutorialManager : MonoBehaviour
             // there is ball hit mechanic to define hit
             // if no hit twxt Try again ...
             // every hit ball UI change color
+            if (tutorialTwoCount >= 3 && !pitcher.IsPitcherThrowing())
+            {
+                SetTutorial(Tutorial.TutorialThree);
+                isTutorialTwoOn = false;
+            }
 
+            throwingTime -= Time.deltaTime;
+
+            if (isTutorialTwoOn && !pitcher.IsPitcherThrowing() && throwingTime <= 0f)
+            {
+                if (OnTutorialTwoProgress != null)
+                {
+                    OnTutorialTwoProgress();
+                }
+
+                throwingTime = 10f;
+            }
 
             pitcher.gameObject.SetActive(true);
             pitcher.DisableInputAction();
             cameraState.Play("TutorialTwo");
-
         }
         else if (currentTutorial == Tutorial.TutorialThree)
         {
@@ -106,8 +158,37 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    private void IncrementTutorialOneCount()
+    {
+        tutorialOneCount++;
+    }
+    private void IncrementTutorialTwoCount()
+    {
+        tutorialTwoCount++;
+    }
+
+    private IEnumerator LoadingScreenRoutine()
+    {
+       if (OnTutorialStart != null)
+       {
+           OnTutorialStart();
+       }
+       yield return new WaitForSeconds(3f);
+
+       SetTutorial(Tutorial.TutorialOne);
+        if (OnLoadingScreenComplete != null)
+        {
+            OnLoadingScreenComplete();
+        }
+    }
+
     public void SetTutorial(Tutorial activeTutorial)
     {
         currentTutorial = activeTutorial;
+    }
+
+    public Tutorial GetTutorial()
+    {
+        return currentTutorial;
     }
 }

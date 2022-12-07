@@ -12,10 +12,12 @@ public class Move : MonoBehaviour
     [SerializeField] private Vector3 screenPosition;
     [SerializeField] private Vector3 worldPosition;
     [SerializeField] private LayerMask layerToHit;
+
+    [SerializeField] bool onTarget = false;
     private void Update()
     {
-        screenPosition = Touchscreen.current.position.ReadValue();
-        //screenPosition = Mouse.current.position.ReadValue();
+        //screenPosition = Touchscreen.current.position.ReadValue();
+        screenPosition = Mouse.current.position.ReadValue();
 
         Ray ray = Camera.main.ScreenPointToRay(screenPosition);
 
@@ -34,8 +36,17 @@ public class Move : MonoBehaviour
     {
         if (other.tag == "Target")
         {
-            Debug.LogWarning("Colliding");
-            Application.Quit();
+            Debug.LogWarning("Inside target area");
+            onTarget = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Target")
+        {
+            Debug.LogWarning("Outside target area");
+            onTarget= false;
         }
     }
 }

@@ -6,8 +6,13 @@ using UnityEngine.InputSystem;
 
 public class Pitcher : MonoBehaviour
 {
+    [SerializeField] TutorialManager tutorialManager;
     [SerializeField] private Animator animator;
     [SerializeField] private InputAction action;
+
+    [SerializeField] bool isThrowing;
+
+    public event Action OnTutorialTwoCount;
 
     private void Start()
     {
@@ -17,11 +22,26 @@ public class Pitcher : MonoBehaviour
         }
         action.performed += _ => Throwing();
         action.Enable();
+
+        tutorialManager.OnTutorialTwoProgress += Throwing;
     }
 
     private void Throwing()
     {
-        animator.SetTrigger("Throw");
+        if (!isThrowing)
+        {
+            animator.SetTrigger("Throw");
+            isThrowing = true;
+        }
+
+        if (tutorialManager.GetTutorial() == Tutorial.TutorialTwo)
+        {
+            if (OnTutorialTwoCount != null)
+            {
+                OnTutorialTwoCount();
+            }
+        }
+
     }
     public void EnableInputAction()
     {
@@ -30,5 +50,14 @@ public class Pitcher : MonoBehaviour
     public void DisableInputAction()
     {
         action.Disable();
+    }
+    public void SetNotThrowing()
+    {
+        isThrowing = false;
+    }
+
+    public bool IsPitcherThrowing()
+    {
+        return isThrowing;
     }
 }
