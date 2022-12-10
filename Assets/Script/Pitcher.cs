@@ -6,13 +6,24 @@ using UnityEngine.InputSystem;
 
 public class Pitcher : MonoBehaviour
 {
+    public enum PitcherState
+    {
+        Targeting,
+        Preparing,
+        Throwing,
+    }
     [SerializeField] TutorialManager tutorialManager;
+    [SerializeField] PowerBar powerBar;
     [SerializeField] private Animator animator;
     [SerializeField] private InputAction action;
+    [SerializeField] PitcherState pitchercurrentState = PitcherState.Targeting;
+
 
     [SerializeField] bool isThrowing;
 
     public event Action OnTutorialTwoCount;
+    public event Action OnTutorialFivecount;
+
 
     private void Start()
     {
@@ -24,10 +35,29 @@ public class Pitcher : MonoBehaviour
         action.Enable();
 
         tutorialManager.OnTutorialTwoProgress += Throwing;
+        powerBar.OnBarStop += Throwing;
     }
 
-    private void Throwing()
+    private void Update()
     {
+
+    }
+
+    public void Throwing()
+    {
+       
+        if (tutorialManager.GetTutorial() == Tutorial.TutorialFive && pitchercurrentState == PitcherState.Preparing && !isThrowing)
+        {
+            pitchercurrentState = PitcherState.Throwing;
+            tutorialManager.IncrementTutorialfiveCount();
+
+            if (OnTutorialFivecount != null)
+            {
+                OnTutorialFivecount(); // for what?
+            }
+        }
+
+
         if (!isThrowing)
         {
             animator.SetTrigger("Throw");
@@ -40,6 +70,12 @@ public class Pitcher : MonoBehaviour
             {
                 OnTutorialTwoCount();
             }
+        }
+
+
+        if (tutorialManager.GetTutorial() == Tutorial.TutorialFour)
+        {
+            tutorialManager.SetTutorial(Tutorial.TutorialFive);
         }
 
     }
@@ -59,5 +95,20 @@ public class Pitcher : MonoBehaviour
     public bool IsPitcherThrowing()
     {
         return isThrowing;
+    }
+
+    public PitcherState GetCurrentstate()
+    {
+        return pitchercurrentState;
+    }
+
+    public void ResetPitcherState()
+    {
+        pitchercurrentState = PitcherState.Targeting;
+    }
+
+    public void SetPitcherState(PitcherState stateOnGoing)
+    {
+        pitchercurrentState = stateOnGoing;
     }
 }

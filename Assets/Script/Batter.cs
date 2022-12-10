@@ -9,6 +9,8 @@ public class Batter : MonoBehaviour
     [SerializeField] TutorialManager tutorialManager;
     [SerializeField] private Animator animator;
     [SerializeField] private InputAction action;
+    [SerializeField] private AudioClip hitAudioClip;
+    [SerializeField] private AudioSource audioSource;
 
     [SerializeField] bool isHitting;
 
@@ -21,33 +23,39 @@ public class Batter : MonoBehaviour
            animator =  GetComponent<Animator>();
         }
 
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
+
         action.performed += _ => Hitting();
     }
 
-    private void Hitting()
+    public void Hitting()
     {
-        if (!isHitting)
-        {
-            animator.SetTrigger("Hit");
-            isHitting = true;
-        }
-
-        if (tutorialManager.GetTutorial() == Tutorial.TutorialOne)
-        {
-            if (OnTutorialOneCount != null)
-            {
-                OnTutorialOneCount();
-            }   
-        }
-
         // currently there is no hit mechanic and ball physics simulation
-        if (tutorialManager.GetTutorial() == Tutorial.TutorialTwo) // and ball is hitting (for next development)
+        if (tutorialManager.GetTutorial() == Tutorial.TutorialTwo && !isHitting) // and ball is hitting (for next development)
         {
             if (OnTutorialTwoCount != null)
             {
                 OnTutorialTwoCount();
             }
         }
+
+        if (tutorialManager.GetTutorial() == Tutorial.TutorialOne && !isHitting)
+        {
+            if (OnTutorialOneCount != null)
+            {
+                OnTutorialOneCount();
+            }
+        }
+
+        if (!isHitting)
+        {
+            animator.SetTrigger("Hit");
+            isHitting = true;
+        }
+
         
     }
 
@@ -67,5 +75,10 @@ public class Batter : MonoBehaviour
     public bool IsBatterHitting()
     {
         return isHitting;
+    }
+
+    public void PlayHitSound()
+    {
+        audioSource.PlayOneShot(hitAudioClip);
     }
 }

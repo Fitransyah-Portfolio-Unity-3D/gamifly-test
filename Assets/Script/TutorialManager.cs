@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public enum Tutorial
@@ -17,6 +18,10 @@ public class TutorialManager : MonoBehaviour
 {
     [SerializeField] private Batter batter;
     [SerializeField] private Pitcher pitcher;
+    [SerializeField] private GameObject targetingSystem;
+    [SerializeField] private Move crosshairObject;
+    [SerializeField] private GameObject powerBarSystem;
+    [SerializeField] private PowerBar powerBar;
 
     [SerializeField] private Tutorial currentTutorial;
     [SerializeField] private Animator cameraState;
@@ -25,21 +30,23 @@ public class TutorialManager : MonoBehaviour
 
     [SerializeField] int tutorialOneCount;
     [SerializeField] int tutorialTwoCount;
+    [SerializeField] int tutorialFiveCount;
 
     bool isTutorialTwoOn;
+    bool targetLocked;
 
     public event Action OnTutorialStart;
     public event Action OnLoadingScreenComplete;
     public event Action OnTutorialOneComplete;
     public event Action OnTutorialTwoProgress;
-    public event Action OnTutorialTwoComplete;
-    public event Action OnTutorialThreeComplete;
-    public event Action OnTutorialFourComplete;
+    public event Action OntutorialTwoComplete;
+    public event Action OnTutorialFiveStarted;
     public event Action OnTutorialFiveComplete;
-    public event Action OnTutorialEndComplete;
+    public event Action<Tutorial> OnTutorialUpdateForButton;
     private void Start()
     {
         currentTutorial = Tutorial.LoadingScreen;
+       
 
         cameraState = GetComponent<Animator>();
 
@@ -51,8 +58,23 @@ public class TutorialManager : MonoBehaviour
 
         batter.OnTutorialOneCount += IncrementTutorialOneCount;
         pitcher.OnTutorialTwoCount += IncrementTutorialTwoCount;
+        crosshairObject.OnTargetLock += LockingTarget;
+        powerBar.OnBarStop += DisablePowerBar;
 
         StartCoroutine(LoadingScreenRoutine());
+
+        if (OnTutorialUpdateForButton != null)
+        {
+            OnTutorialUpdateForButton(currentTutorial);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // TO DO
+        batter.OnTutorialOneCount -= IncrementTutorialOneCount;
+        pitcher.OnTutorialTwoCount -= IncrementTutorialTwoCount;
+        crosshairObject.OnTargetLock -= LockingTarget;
     }
     private void Update()
     {
@@ -65,7 +87,10 @@ public class TutorialManager : MonoBehaviour
             // effect on hit button is active
             // tutorial text one welcome...
             // tutorial text two taps the ...
-            
+            if (OnTutorialUpdateForButton != null)
+            {
+                OnTutorialUpdateForButton(currentTutorial);
+            }
             
             
             batter.gameObject.SetActive(true);
@@ -93,10 +118,20 @@ public class TutorialManager : MonoBehaviour
             // there is ball hit mechanic to define hit
             // if no hit twxt Try again ...
             // every hit ball UI change color
+            if (OnTutorialUpdateForButton != null)
+            {
+                OnTutorialUpdateForButton(currentTutorial);
+            }
+
             if (tutorialTwoCount >= 3 && !pitcher.IsPitcherThrowing())
             {
                 SetTutorial(Tutorial.TutorialThree);
                 isTutorialTwoOn = false;
+
+                if (OntutorialTwoComplete != null)
+                {
+                    OntutorialTwoComplete();
+                }
             }
 
             throwingTime -= Time.deltaTime;
@@ -123,9 +158,14 @@ public class TutorialManager : MonoBehaviour
             // crosshair gameobject appear (UI)
             // tutorial text Great ...
             // tutorial text dragthe marker here...
+            if (OnTutorialUpdateForButton != null)
+            {
+                OnTutorialUpdateForButton(currentTutorial);
+            }
 
             cameraState.Play("TutorialThree");
             batter.gameObject.SetActive(false);
+            if (!targetingSystem.activeSelf) targetingSystem.gameObject.SetActive(true);
             
         }
         else if (currentTutorial == Tutorial.TutorialFour)
@@ -135,6 +175,14 @@ public class TutorialManager : MonoBehaviour
             // power bar UI active with animation
             // if power bar stop in red text Not enough power ...
             // if power bar stop in white text Great ...
+            if (OnTutorialUpdateForButton != null)
+            {
+                OnTutorialUpdateForButton(currentTutorial);
+            }
+
+            targetingSystem.gameObject.SetActive(false);
+            cameraState.Play("TutorialFour");
+            powerBarSystem.gameObject.SetActive(true);  
 
         }
         else if (currentTutorial == Tutorial.TutorialFive)
@@ -145,16 +193,51 @@ public class TutorialManager : MonoBehaviour
             // ball UI appear
             // every succesfull throw ball UI change color
 
-            batter.gameObject.SetActive(true);
+            if (!pitcher.IsPitcherThrowing())
+            {
+                cameraState.Play("TutorialThree");
+                batter.gameObject.SetActive(true);
+            }
+            
+
+            if (tutorialFiveCount == 0)
+            {
+                batter.DisableInputAction();
+
+                if (OnTutorialFiveStarted != null)
+                {
+                    OnTutorialFiveStarted();
+                }
+
+                Debug.LogWarning("Tutorial five Just started");
+            }
+
+            if (tutorialFiveCount >= 3 && !pitcher.IsPitcherThrowing())
+            {
+                if (OnTutorialFiveComplete != null)
+                {
+                    OnTutorialFiveComplete();
+                }
+
+                SetTutorial(Tutorial.TutorialEnd);
+            }
         }
         else if (currentTutorial == Tutorial.TutorialEnd)
         {
             // pick team UI pop up
             // if team pick 
             // exit app
+            if (OnTutorialUpdateForButton != null)
+            {
+                OnTutorialUpdateForButton(currentTutorial);
+            }
 
             batter.gameObject.SetActive(false);
             pitcher.gameObject.SetActive(false);
+            targetingSystem.SetActive(false);
+            powerBarSystem.SetActive(false);
+
+            cameraState.Play("TutorialEnd");
         }
     }
 
@@ -166,6 +249,7 @@ public class TutorialManager : MonoBehaviour
     {
         tutorialTwoCount++;
     }
+
 
     private IEnumerator LoadingScreenRoutine()
     {
@@ -182,6 +266,23 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    private void LockingTarget()
+    {
+        // if ball throwing mechanic exist :
+        // get the vector3 target
+        // and use this as position as ball destination
+        if (currentTutorial == Tutorial.TutorialThree)
+        {
+            targetingSystem.gameObject.SetActive(false);
+            SetTutorial(Tutorial.TutorialFour);
+        }
+    }
+
+    private void DisablePowerBar()
+    {
+        powerBarSystem.gameObject.SetActive(false);
+    }
+
     public void SetTutorial(Tutorial activeTutorial)
     {
         currentTutorial = activeTutorial;
@@ -191,4 +292,10 @@ public class TutorialManager : MonoBehaviour
     {
         return currentTutorial;
     }
+
+    public void IncrementTutorialfiveCount()
+    {
+        tutorialFiveCount++;
+    }
+
 }
