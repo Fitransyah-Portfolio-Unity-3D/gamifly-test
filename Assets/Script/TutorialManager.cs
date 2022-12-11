@@ -158,15 +158,22 @@ public class TutorialManager : MonoBehaviour
             cameraState.Play("TutorialFour");
             powerBarSystem.gameObject.SetActive(true);  
 
+            if (currentTutorial == Tutorial.TutorialFour && 
+                powerBar.IsPowerBarStop() == true && 
+                pitcher.IsPitcherThrowing() == false)
+            {
+                currentTutorial = Tutorial.TutorialFive;
+            }
+
         }
         else if (currentTutorial == Tutorial.TutorialFive)
         {
-            if (!pitcher.IsPitcherThrowing())
+            SetTutorialFiveCameraSetting(pitcher.GetCurrentstate());
+
+            if (OnTutorialUpdateFromTutorialManager != null)
             {
-                cameraState.Play("TutorialThree");
-                batter.gameObject.SetActive(true);
+                OnTutorialUpdateFromTutorialManager(currentTutorial);
             }
-            
 
             if (pitcher.GetCurrentstate() == Pitcher.PitcherState.None)
             {
@@ -254,6 +261,25 @@ public class TutorialManager : MonoBehaviour
     private void DisablePowerBar()
     {
         powerBarSystem.gameObject.SetActive(false);
+    }
+
+    private void SetTutorialFiveCameraSetting(Pitcher.PitcherState pitcherState)
+    {
+        switch (pitcherState)
+        {
+            case Pitcher.PitcherState.None:
+                cameraState.Play("TutorialFive");
+                break;
+            case Pitcher.PitcherState.Targeting:
+                cameraState.Play("TutorialThree");
+                break;
+            case Pitcher.PitcherState.Preparing:
+                cameraState.Play("TutorialFour");
+                break;
+            case Pitcher.PitcherState.Throwing:
+                cameraState.Play("TutorialFive");
+                break;
+        }
     }
 
     public void SetTutorial(Tutorial activeTutorial)

@@ -31,11 +31,8 @@ public class Move : MonoBehaviour
 
     private void TargetingMechanic()
     {
-
-#if UNITY_ANDROID
-        //screenPosition = Touchscreen.current.position.ReadValue();
-#endif
-        screenPosition = Mouse.current.position.ReadValue();
+        //screenPosition = Mouse.current.position.ReadValue();
+        screenPosition = Touchscreen.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(screenPosition);
 
         if (Physics.Raycast(ray, out RaycastHit hitData, 100, 1 << 6))

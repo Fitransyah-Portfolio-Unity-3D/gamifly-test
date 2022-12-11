@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -28,6 +29,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] CanvasGroup tutorialThreetext;
     [SerializeField] CanvasGroup tutorialFourtext;
     [SerializeField] CanvasGroup tutorialFivetext;
+    [SerializeField] CanvasGroup tutorialEndtext;
+
 
     private void Start()
     {
@@ -56,7 +59,7 @@ public class UIManager : MonoBehaviour
         tutorialManager.OnTutorialFiveStarted -= EnableBallUi;
         tutorialManager.OnTutorialFiveComplete -= DisableBallUi;
 
-        tutorialManager.OnTutorialUpdateFromTutorialManager += SetTutorialText;
+        tutorialManager.OnTutorialUpdateFromTutorialManager -= SetTutorialText;
 
         batter.OnTutorialTwoCount -= RemoveBallUiImage;
         tutorialFive.OnTutorialUpdateFromTutorialFive -= SetButtonInteractionTutFive;
@@ -147,8 +150,11 @@ public class UIManager : MonoBehaviour
             case Tutorial.TutorialEnd:
                 // TO DO
                 hitButton.interactable = false;
+                hitButton.gameObject.SetActive(false);
                 throwButton.interactable = false;
+                throwButton.gameObject.SetActive(false);
                 targetButton.interactable = false;
+                targetButton.gameObject.SetActive(false);
                 break;
         }
     }
@@ -187,6 +193,7 @@ public class UIManager : MonoBehaviour
                 tutorialThreetext.alpha = 0;
                 tutorialFourtext.alpha = 0;
                 tutorialFivetext.alpha = 0;
+                tutorialEndtext.alpha = 0;
                 break;
             case Tutorial.TutorialTwo:
                 // TO DO
@@ -195,6 +202,7 @@ public class UIManager : MonoBehaviour
                 tutorialThreetext.alpha = 0;
                 tutorialFourtext.alpha = 0;
                 tutorialFivetext.alpha = 0;
+                tutorialEndtext.alpha = 0;
                 break;
             case Tutorial.TutorialThree:
                 // TO DO
@@ -203,6 +211,7 @@ public class UIManager : MonoBehaviour
                 tutorialThreetext.alpha = 1f;
                 tutorialFourtext.alpha = 0;
                 tutorialFivetext.alpha = 0;
+                tutorialEndtext.alpha = 0;
                 break;
             case Tutorial.TutorialFour:
                 // TO DO
@@ -211,6 +220,7 @@ public class UIManager : MonoBehaviour
                 tutorialThreetext.alpha = 0;
                 tutorialFourtext.alpha = 1f;
                 tutorialFivetext.alpha = 0;
+                tutorialEndtext.alpha = 0;
                 break;
             case Tutorial.TutorialFive:
                 // TO DO
@@ -219,12 +229,28 @@ public class UIManager : MonoBehaviour
                 tutorialThreetext.alpha = 0;
                 tutorialFourtext.alpha = 0;
                 tutorialFivetext.alpha = 1f;
+                tutorialEndtext.alpha = 0;
                 break;
             case Tutorial.TutorialEnd:
                 // TO DO
-
+                tutorialOnetext.alpha = 0;
+                tutorialTwotext.alpha = 0;
+                tutorialThreetext.alpha = 0;
+                tutorialFourtext.alpha = 0;
+                tutorialFivetext.alpha = 0;
+                tutorialEndtext.alpha = 1f;
                 break;
         }
+    }
+
+    public void SubmitTeam()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 
 }
