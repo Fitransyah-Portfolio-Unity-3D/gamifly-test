@@ -16,6 +16,8 @@ public class Batter : MonoBehaviour
 
     public event Action OnTutorialOneCount;
     public event Action OnTutorialTwoCount;
+
+
     private void Start()
     {
         if (animator == null)
@@ -29,8 +31,10 @@ public class Batter : MonoBehaviour
         }
 
         action.performed += _ => Hitting();
+        
     }
 
+   
     public void Hitting()
     {
         // currently there is no hit mechanic and ball physics simulation
@@ -55,9 +59,14 @@ public class Batter : MonoBehaviour
             animator.SetTrigger("Hit");
             isHitting = true;
         }
-
-        
     }
+
+    public void HitAction()
+    {
+        animator.SetTrigger("Hit");
+        isHitting = true;
+    }
+
 
     public void EnableInputAction()
     {
@@ -79,6 +88,6 @@ public class Batter : MonoBehaviour
 
     public void PlayHitSound()
     {
-        audioSource.PlayOneShot(hitAudioClip);
+        audioSource.PlayOneShot(hitAudioClip, 0.85f);
     }
 }

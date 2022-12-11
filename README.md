@@ -10,3 +10,5 @@ Contain 5 part of tutorial :
 - Tutorial four player practice power bar mechanic with pitcher
 - Tutorial five where player practice target and power bar mechanic at the same time with batter try to hit the ball (no real ball physics)
 - Tutorial end where player selecting a team, after team selected the game will quit the app / restart the game scene.
+
+You can download the apk here : https://drive.google.com/file/d/1daacltTNbWUkltn9zo5nV0Yh6uM-mod5/view?usp=share_link

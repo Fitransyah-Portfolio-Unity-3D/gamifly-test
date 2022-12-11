@@ -127,7 +127,7 @@ public class TutorialManager : MonoBehaviour
                     OnTutorialTwoProgress();
                 }
 
-                throwingTime = 7f;
+                throwingTime = 9f;
             }
 
             throwingTime -= Time.deltaTime;
@@ -163,6 +163,7 @@ public class TutorialManager : MonoBehaviour
                 pitcher.IsPitcherThrowing() == false)
             {
                 currentTutorial = Tutorial.TutorialFive;
+                batter.gameObject.SetActive(true); 
             }
 
         }

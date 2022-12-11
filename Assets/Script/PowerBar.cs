@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PowerBar : MonoBehaviour
 {
+    [SerializeField] Batter batter;
+    [SerializeField] TutorialManager tutorialManager;
     [SerializeField] RectTransform topLimit;
     [SerializeField] RectTransform downLimit;
     [SerializeField] RectTransform pointer;
@@ -20,6 +22,11 @@ public class PowerBar : MonoBehaviour
     private void Awake()
     {
         RunPowerBar();
+
+        if (batter == null)
+        {
+            GameObject.FindGameObjectWithTag("Batter").GetComponent<Batter>();
+        }
     }
 
     private void Start()
@@ -50,10 +57,17 @@ public class PowerBar : MonoBehaviour
     {
         barStop = true;
 
+        if (tutorialManager.GetTutorial() == Tutorial.TutorialFive)
+        {
+            batter.HitAction();
+        }
+
         if (OnBarStop != null)
         {
             OnBarStop();
         }
+
+       
     }
 
     public void RunPowerBar()
