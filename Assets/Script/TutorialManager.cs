@@ -42,7 +42,7 @@ public class TutorialManager : MonoBehaviour
     public event Action OntutorialTwoComplete;
     public event Action OnTutorialFiveStarted;
     public event Action OnTutorialFiveComplete;
-    public event Action<Tutorial> OnTutorialUpdateForButton;
+    public event Action<Tutorial> OnTutorialUpdateFromTutorialManager;
     private void Start()
     {
         currentTutorial = Tutorial.LoadingScreen;
@@ -63,9 +63,9 @@ public class TutorialManager : MonoBehaviour
 
         StartCoroutine(LoadingScreenRoutine());
 
-        if (OnTutorialUpdateForButton != null)
+        if (OnTutorialUpdateFromTutorialManager != null)
         {
-            OnTutorialUpdateForButton(currentTutorial);
+            OnTutorialUpdateFromTutorialManager(currentTutorial);
         }
     }
 
@@ -80,16 +80,9 @@ public class TutorialManager : MonoBehaviour
     {
         if (currentTutorial == Tutorial.TutorialOne)
         {
-            // batsman gameobject active
-            // hit UI active
-            // camera focus on batsman
-            // hit UI is interactable
-            // effect on hit button is active
-            // tutorial text one welcome...
-            // tutorial text two taps the ...
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialManager != null)
             {
-                OnTutorialUpdateForButton(currentTutorial);
+                OnTutorialUpdateFromTutorialManager(currentTutorial);
             }
             
             
@@ -111,16 +104,9 @@ public class TutorialManager : MonoBehaviour
         }
         else if (currentTutorial == Tutorial.TutorialTwo)
         {
-            // bowler gameobject active
-            // camera focus on batsman and bowler
-            // ball UI appear
-            // tutorial text Come on...
-            // there is ball hit mechanic to define hit
-            // if no hit twxt Try again ...
-            // every hit ball UI change color
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialManager != null)
             {
-                OnTutorialUpdateForButton(currentTutorial);
+                OnTutorialUpdateFromTutorialManager(currentTutorial);
             }
 
             if (tutorialTwoCount >= 3 && !pitcher.IsPitcherThrowing())
@@ -134,8 +120,6 @@ public class TutorialManager : MonoBehaviour
                 }
             }
 
-            throwingTime -= Time.deltaTime;
-
             if (isTutorialTwoOn && !pitcher.IsPitcherThrowing() && throwingTime <= 0f)
             {
                 if (OnTutorialTwoProgress != null)
@@ -143,24 +127,19 @@ public class TutorialManager : MonoBehaviour
                     OnTutorialTwoProgress();
                 }
 
-                throwingTime = 10f;
+                throwingTime = 7f;
             }
 
+            throwingTime -= Time.deltaTime;
             pitcher.gameObject.SetActive(true);
             pitcher.DisableInputAction();
             cameraState.Play("TutorialTwo");
         }
         else if (currentTutorial == Tutorial.TutorialThree)
         {
-            // camera move to bowler back
-            // batsman gameobject not active
-            // target marker gameobjcet appear (UI)
-            // crosshair gameobject appear (UI)
-            // tutorial text Great ...
-            // tutorial text dragthe marker here...
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialManager != null)
             {
-                OnTutorialUpdateForButton(currentTutorial);
+                OnTutorialUpdateFromTutorialManager(currentTutorial);
             }
 
             cameraState.Play("TutorialThree");
@@ -170,14 +149,9 @@ public class TutorialManager : MonoBehaviour
         }
         else if (currentTutorial == Tutorial.TutorialFour)
         {
-            // tutorial text Good job ...
-            // crosshair UI not active
-            // power bar UI active with animation
-            // if power bar stop in red text Not enough power ...
-            // if power bar stop in white text Great ...
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialManager != null)
             {
-                OnTutorialUpdateForButton(currentTutorial);
+                OnTutorialUpdateFromTutorialManager(currentTutorial);
             }
 
             targetingSystem.gameObject.SetActive(false);
@@ -187,18 +161,17 @@ public class TutorialManager : MonoBehaviour
         }
         else if (currentTutorial == Tutorial.TutorialFive)
         {
-            // camera fadeaway
-            // batsman gameobject active
-            // crosshair gameobject active
-            // ball UI appear
-            // every succesfull throw ball UI change color
-
             if (!pitcher.IsPitcherThrowing())
             {
                 cameraState.Play("TutorialThree");
                 batter.gameObject.SetActive(true);
             }
             
+
+            if (pitcher.GetCurrentstate() == Pitcher.PitcherState.None)
+            {
+                pitcher.SetPitcherState(Pitcher.PitcherState.Targeting);
+            }
 
             if (tutorialFiveCount == 0)
             {
@@ -212,7 +185,7 @@ public class TutorialManager : MonoBehaviour
                 Debug.LogWarning("Tutorial five Just started");
             }
 
-            if (tutorialFiveCount >= 3 && !pitcher.IsPitcherThrowing())
+            if (tutorialFiveCount >= 3 && powerBar.IsPowerBarStop() == true && pitcher.IsPitcherThrowing() == false)
             {
                 if (OnTutorialFiveComplete != null)
                 {
@@ -227,9 +200,9 @@ public class TutorialManager : MonoBehaviour
             // pick team UI pop up
             // if team pick 
             // exit app
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialManager != null)
             {
-                OnTutorialUpdateForButton(currentTutorial);
+                OnTutorialUpdateFromTutorialManager(currentTutorial);
             }
 
             batter.gameObject.SetActive(false);

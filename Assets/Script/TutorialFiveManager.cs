@@ -13,22 +13,25 @@ public class TutorialFiveManager : MonoBehaviour
     [SerializeField] Move crosshair;
     [SerializeField] PowerBar powerBar;
 
+    bool isTutorialFiveStart;
 
-    public event Action<PitcherState> OnTutorialUpdateForButton;
+    public event Action<PitcherState> OnTutorialUpdateFromTutorialFive;
 
     private void Start()
     {
         crosshair.OnTargetLock += LockPitcherTarget;
+        tutorialManager.OnTutorialFiveStarted += StartTutorialFiveRoutine;
     }
 
     private void OnDestroy()
     {
         crosshair.OnTargetLock -= LockPitcherTarget;
+        tutorialManager.OnTutorialFiveStarted -= StartTutorialFiveRoutine;
     }
 
     private void Update()
     {
-        if (tutorialManager.GetTutorial() != Tutorial.TutorialFive || tutorialManager.GetTutorial() == Tutorial.TutorialFour) return;
+        if (!isTutorialFiveStart) return;
 
 
         if (pitcher.GetCurrentstate() == Pitcher.PitcherState.Targeting)
@@ -36,9 +39,9 @@ public class TutorialFiveManager : MonoBehaviour
             if (!targetingSystem.activeSelf) targetingSystem.SetActive(true);
             powerBarSystem.SetActive(false);
 
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialFive != null)
             {
-                OnTutorialUpdateForButton(pitcher.GetCurrentstate());
+                OnTutorialUpdateFromTutorialFive(pitcher.GetCurrentstate());
             }
         }
         else if(pitcher.GetCurrentstate() == Pitcher.PitcherState.Preparing)
@@ -46,9 +49,9 @@ public class TutorialFiveManager : MonoBehaviour
             targetingSystem.SetActive(false);
             if ( !powerBarSystem.activeSelf) powerBarSystem.SetActive(true);
 
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialFive != null)
             {
-                OnTutorialUpdateForButton(pitcher.GetCurrentstate());
+                OnTutorialUpdateFromTutorialFive(pitcher.GetCurrentstate());
             }
         }
         else if(pitcher.GetCurrentstate()== Pitcher.PitcherState.Throwing)
@@ -56,15 +59,25 @@ public class TutorialFiveManager : MonoBehaviour
             targetingSystem.SetActive(false);
             powerBarSystem.SetActive(false);
 
-            if (OnTutorialUpdateForButton != null)
+            if (OnTutorialUpdateFromTutorialFive != null)
             {
-                OnTutorialUpdateForButton(pitcher.GetCurrentstate());
+                OnTutorialUpdateFromTutorialFive(pitcher.GetCurrentstate());
             }
+
+            pitcher.SetPitcherState(PitcherState.Targeting);
         }
     }
 
     private void LockPitcherTarget()
     {
+        if (!isTutorialFiveStart) return;
         pitcher.SetPitcherState(Pitcher.PitcherState.Preparing);
+        powerBar.RunPowerBar();
+        tutorialManager.IncrementTutorialfiveCount();
+    }
+
+    private void StartTutorialFiveRoutine()
+    {
+        isTutorialFiveStart = true;
     }
 }

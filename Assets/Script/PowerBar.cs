@@ -17,6 +17,11 @@ public class PowerBar : MonoBehaviour
 
     public event Action OnBarStop;
 
+    private void Awake()
+    {
+        RunPowerBar();
+    }
+
     private void Start()
     {
         topLocalY = topLimit.anchoredPosition.y;
@@ -41,11 +46,6 @@ public class PowerBar : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        RunPowerBar();
-    }
-
     public void StopPowerBar()
     {
         barStop = true;
@@ -59,6 +59,11 @@ public class PowerBar : MonoBehaviour
     public void RunPowerBar()
     {
         barStop = false;
+    }
+
+    public bool IsPowerBarStop()
+    {
+        return barStop;
     }
 
 }

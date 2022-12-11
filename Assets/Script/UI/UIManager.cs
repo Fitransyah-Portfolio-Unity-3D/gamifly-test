@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [Header("Gameplay")]
+    [Space(10)]
     [SerializeField] TutorialManager tutorialManager;
     [SerializeField] Batter batter;
     [SerializeField] Pitcher pitcher;
@@ -18,19 +20,29 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] int ballUiIndex;
 
+    [Space(30)]
+    [Header("Tutorial Text")]
+    [Space(10)]
+    [SerializeField] CanvasGroup tutorialOnetext;
+    [SerializeField] CanvasGroup tutorialTwotext;
+    [SerializeField] CanvasGroup tutorialThreetext;
+    [SerializeField] CanvasGroup tutorialFourtext;
+    [SerializeField] CanvasGroup tutorialFivetext;
+
     private void Start()
     {
         tutorialManager.OnTutorialStart += ToggleLoadingScreenText;
         tutorialManager.OnLoadingScreenComplete += ToggleLoadingScreenText;
         tutorialManager.OnTutorialOneComplete += EnableBallUi;
         tutorialManager.OntutorialTwoComplete += DisableBallUi;
-        tutorialManager.OnTutorialUpdateForButton += UpdateButton;
+        tutorialManager.OnTutorialUpdateFromTutorialManager += UpdateButton;
         tutorialManager.OnTutorialFiveStarted += EnableBallUi;
         tutorialManager.OnTutorialFiveComplete += DisableBallUi;
 
+        tutorialManager.OnTutorialUpdateFromTutorialManager += SetTutorialText;
 
         batter.OnTutorialTwoCount += RemoveBallUiImage;
-        tutorialFive.OnTutorialUpdateForButton += SetButtonInteractionTutFive;
+        tutorialFive.OnTutorialUpdateFromTutorialFive += SetButtonInteractionTutFive;
         pitcher.OnTutorialFivecount += RemoveBallUiImage;
     }
 
@@ -40,12 +52,14 @@ public class UIManager : MonoBehaviour
         tutorialManager.OnLoadingScreenComplete -= ToggleLoadingScreenText;
         tutorialManager.OnTutorialOneComplete -= EnableBallUi;
         tutorialManager.OntutorialTwoComplete -= DisableBallUi;
-        tutorialManager.OnTutorialUpdateForButton -= UpdateButton;
+        tutorialManager.OnTutorialUpdateFromTutorialManager -= UpdateButton;
         tutorialManager.OnTutorialFiveStarted -= EnableBallUi;
         tutorialManager.OnTutorialFiveComplete -= DisableBallUi;
 
+        tutorialManager.OnTutorialUpdateFromTutorialManager += SetTutorialText;
+
         batter.OnTutorialTwoCount -= RemoveBallUiImage;
-        tutorialFive.OnTutorialUpdateForButton -= SetButtonInteractionTutFive;
+        tutorialFive.OnTutorialUpdateFromTutorialFive -= SetButtonInteractionTutFive;
         pitcher.OnTutorialFivecount -= RemoveBallUiImage;
     }
     private void ToggleLoadingScreenText()
@@ -74,8 +88,6 @@ public class UIManager : MonoBehaviour
         ballsUI[ballUiIndex].sprite = null;
         ballsUI[ballUiIndex].color = new Color(0,0,0,0);
         ballUiIndex++;
-
-       
     }
 
     private void ResetBallUiImage()
@@ -159,6 +171,58 @@ public class UIManager : MonoBehaviour
                 hitButton.interactable = false;
                 throwButton.interactable = false;
                 targetButton.interactable = false;
+                break;
+        }
+    }
+
+    public void SetTutorialText(Tutorial ongoingTutorial)
+    {
+        switch (ongoingTutorial)
+        {
+
+            case Tutorial.TutorialOne:
+                // TO DO
+                tutorialOnetext.alpha = 1f;
+                tutorialTwotext.alpha = 0;
+                tutorialThreetext.alpha = 0;
+                tutorialFourtext.alpha = 0;
+                tutorialFivetext.alpha = 0;
+                break;
+            case Tutorial.TutorialTwo:
+                // TO DO
+                tutorialOnetext.alpha = 0;
+                tutorialTwotext.alpha = 1f;
+                tutorialThreetext.alpha = 0;
+                tutorialFourtext.alpha = 0;
+                tutorialFivetext.alpha = 0;
+                break;
+            case Tutorial.TutorialThree:
+                // TO DO
+                tutorialOnetext.alpha = 0;
+                tutorialTwotext.alpha = 0;
+                tutorialThreetext.alpha = 1f;
+                tutorialFourtext.alpha = 0;
+                tutorialFivetext.alpha = 0;
+                break;
+            case Tutorial.TutorialFour:
+                // TO DO
+                tutorialOnetext.alpha = 0;
+                tutorialTwotext.alpha = 0;
+                tutorialThreetext.alpha = 0;
+                tutorialFourtext.alpha = 1f;
+                tutorialFivetext.alpha = 0;
+                break;
+            case Tutorial.TutorialFive:
+                // TO DO
+                tutorialOnetext.alpha = 0;
+                tutorialTwotext.alpha = 0;
+                tutorialThreetext.alpha = 0;
+                tutorialFourtext.alpha = 0;
+                tutorialFivetext.alpha = 1f;
+                break;
+            case Tutorial.TutorialEnd:
+                // TO DO
+
                 break;
         }
     }

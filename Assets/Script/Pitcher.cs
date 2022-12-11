@@ -11,12 +11,13 @@ public class Pitcher : MonoBehaviour
         Targeting,
         Preparing,
         Throwing,
+        None
     }
     [SerializeField] TutorialManager tutorialManager;
     [SerializeField] PowerBar powerBar;
     [SerializeField] private Animator animator;
     [SerializeField] private InputAction action;
-    [SerializeField] PitcherState pitchercurrentState = PitcherState.Targeting;
+    [SerializeField] PitcherState pitchercurrentState;
 
 
     [SerializeField] bool isThrowing;
@@ -24,7 +25,10 @@ public class Pitcher : MonoBehaviour
     public event Action OnTutorialTwoCount;
     public event Action OnTutorialFivecount;
 
-
+    private void Awake()
+    {
+        pitchercurrentState = PitcherState.None;
+    }
     private void Start()
     {
         if (animator == null)
@@ -38,46 +42,34 @@ public class Pitcher : MonoBehaviour
         powerBar.OnBarStop += Throwing;
     }
 
-    private void Update()
-    {
-
-    }
-
     public void Throwing()
     {
        
-        if (tutorialManager.GetTutorial() == Tutorial.TutorialFive && pitchercurrentState == PitcherState.Preparing && !isThrowing)
-        {
-            pitchercurrentState = PitcherState.Throwing;
-            tutorialManager.IncrementTutorialfiveCount();
-
-            if (OnTutorialFivecount != null)
-            {
-                OnTutorialFivecount(); // for what?
-            }
-        }
-
-
         if (!isThrowing)
         {
             animator.SetTrigger("Throw");
             isThrowing = true;
-        }
 
-        if (tutorialManager.GetTutorial() == Tutorial.TutorialTwo)
-        {
-            if (OnTutorialTwoCount != null)
+            if (OnTutorialFivecount != null && tutorialManager.GetTutorial() == Tutorial.TutorialFive)
             {
-                OnTutorialTwoCount();
+                OnTutorialFivecount(); // for what?
             }
+
+            //if (tutorialManager.GetTutorial() == Tutorial.TutorialFive && pitchercurrentState == PitcherState.Preparing && !isThrowing)
+            //{
+            //    pitchercurrentState = PitcherState.Throwing;
+            //    tutorialManager.IncrementTutorialfiveCount();
+            //}
+
+            if (tutorialManager.GetTutorial() == Tutorial.TutorialTwo)
+            {
+                if (OnTutorialTwoCount != null)
+                {
+                    OnTutorialTwoCount();
+                }
+            }
+
         }
-
-
-        if (tutorialManager.GetTutorial() == Tutorial.TutorialFour)
-        {
-            tutorialManager.SetTutorial(Tutorial.TutorialFive);
-        }
-
     }
     public void EnableInputAction()
     {
@@ -104,7 +96,7 @@ public class Pitcher : MonoBehaviour
 
     public void ResetPitcherState()
     {
-        pitchercurrentState = PitcherState.Targeting;
+        pitchercurrentState = PitcherState.None;
     }
 
     public void SetPitcherState(PitcherState stateOnGoing)
